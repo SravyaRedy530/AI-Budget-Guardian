@@ -43,42 +43,48 @@ Crucially, rather than relying on "black-box" machine learning predictions, the 
 
 ## 3. Platform Architecture
 
+```
+                               ┌─────────────────────────────┐
+                               │     React 18 + Vite UI      │
+                               │  (TypeScript, Tailwind CSS) │
+                               └──────────────┬──────────────┘
+                                              │ HTTPS / JWT
+                               ┌──────────────▼──────────────┐
+                               │    Spring Boot 3 REST API   │
+                               │    (Java 21, Security 6)    │
+                               └──────┬────────────────┬─────┘
+                                      │                │
+                        Spring Data   │                │ HTTP REST
+                        JPA / JDBC    │                │ JSON RPC
+                                      │                │
+                         ┌────────────▼──┐      ┌──────▼─────────────────────┐
+                         │ PostgreSQL 17 │      │  Python FastAPI AI Engine  │
+                         │ Relational DB │      │  (XGBoost, IsolationForest)│
+                         └───────────────┘      └──────────────┬─────────────┘
+                                                               │
+                                                        ┌──────▼─────────────┐
+                                                        │ Explainable AI     │
+                                                        │ (SHAP & LIME XAI)  │
+                                                        └────────────────────┘
+```
+
 ```mermaid
-flowchart TD
-    subgraph ClientLayer["Presentation Layer (Client)"]
-        UI["React 18 + Vite + Tailwind CSS\n(TypeScript, TanStack Table & Query, Recharts)"]
-    end
+graph TD
+    Client["React 18 + Vite Frontend (TypeScript, Tailwind CSS)"]
+    Gateway["Spring Boot 3 REST API (Java 21 LTS, Spring Security 6)"]
+    DB[("PostgreSQL Database (Relational Data & Audit Logs)")]
+    MinIO[("MinIO S3 Storage (Invoice PDFs & Receipts)")]
+    AI["FastAPI AI Engine (Python 3.13, Uvicorn)"]
+    ML["ML Models (XGBoost, Isolation Forest, RapidFuzz)"]
+    XAI["Explainable AI (SHAP & LIME XAI Framework)"]
 
-    subgraph GatewayLayer["Core API Gateway & Application Layer"]
-        Gateway["Spring Boot 3.2.4 REST API (Java 21 LTS)\nSpring Security 6 (JWT Access/Refresh, RBAC)\nSpring Data JPA + Aspect-Oriented Audit Logging"]
-    end
-
-    subgraph StorageLayer["Persistence & Storage Layer"]
-        DB[("PostgreSQL 16/17 Relational DB\n(20 Normalized Tables & Audit Logs)")]
-        H2[("H2 In-Memory Fallback\n(Auto-Migration & Seeding)")]
-        MinIO[("MinIO S3 Object Storage\n(Invoice PDFs & Proof Evidence)")]
-    end
-
-    subgraph AILayer["AI / Machine Learning Microservice"]
-        FastAPI["FastAPI Engine (Python 3.11 / 3.13)\nUvicorn Asynchronous Gateway"]
-        
-        subgraph Models["Algorithmic Pipeline"]
-            DUP["RapidFuzz Levenshtein\n& Jaro-Winkler Matching"]
-            VEND["Identity Graph Clustering\n+ XGBoost Classifier"]
-            BURN["Time-Series Regression\nBudget Burn-Rate Forecaster"]
-            ANOM["Isolation Forest & LOF\nTransaction Outlier Scorer"]
-            XAI["SHAP & LIME\nExplainable Feature Attribution"]
-        end
-    end
-
-    UI -->|HTTPS / JWT REST| Gateway
-    Gateway -->|Spring Data JPA / JDBC| DB
-    Gateway -.->|Dev Fallback| H2
+    Client -->|HTTPS / JWT REST| Gateway
+    Gateway -->|Spring Data JPA| DB
     Gateway -->|S3 Protocol| MinIO
-    Gateway -->|HTTP JSON RPC| FastAPI
-    FastAPI --> DUP & VEND & BURN & ANOM
-    DUP & VEND & BURN & ANOM --> XAI
-    XAI -->|Structured JSON Inferences| Gateway
+    Gateway -->|HTTP JSON RPC| AI
+    AI -->|Feature Pipelines| ML
+    AI -->|Feature Attributions| XAI
+    XAI -->|Transparent Audit Evidence| Gateway
 ```
 
 ---
