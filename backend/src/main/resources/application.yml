@@ -8,16 +8,15 @@ spring:
     name: ai-budget-guardian-backend
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:aibudgetdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL}
-    username: ${SPRING_DATASOURCE_USERNAME:sa}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
-    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/aibudgetdb}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
-    database-platform: ${SPRING_JPA_DIALECT:org.hibernate.dialect.H2Dialect}
     properties:
       hibernate:
         format_sql: true
@@ -29,7 +28,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
       schema-locations: classpath:db/migration/V1__init_schema.sql
       data-locations: classpath:db/migration/V2__seed_data.sql
 

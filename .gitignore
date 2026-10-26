@@ -5,18 +5,22 @@ frontend/.vite/
 
 # Java / Spring Boot Backend
 backend/target/
+backend/${project.build.directory}/
 *.class
 *.jar
 
 # Python AI Service
-ai-service/__pycache__/
-ai-service/app/__pycache__/
-ai-service/app/api/__pycache__/
-ai-service/app/modules/__pycache__/
+**/__pycache__/
 *.pyc
 venv/
 .venv/
+ai-service/venv/
+ai-service/.venv/
 .pytest_cache/
+
+# Environment Secrets
+.env
+*.env.local
 
 # System & IDE
 .DS_Store
